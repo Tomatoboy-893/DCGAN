@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -8,18 +8,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-#出力フォルダの構成
 BASE_DIR = "dcgan_output"
 img_save_dir = os.path.join(BASE_DIR, "images")
 model_save_dir = os.path.join(BASE_DIR, "models")
 graph_save_dir = os.path.join(BASE_DIR, "graphs")
 
-# フォルダが存在しなければ作成
 os.makedirs(img_save_dir, exist_ok=True)
 os.makedirs(model_save_dir, exist_ok=True)
 os.makedirs(graph_save_dir, exist_ok=True)
 
-# データセット読み込み
 def get_mnist_dataloader(batch_size=128):
     transform = transforms.Compose([
         transforms.Resize(32),
@@ -29,7 +26,6 @@ def get_mnist_dataloader(batch_size=128):
     dataset = datasets.MNIST(root='./data', train=True, download=True, transform=transform)
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 
-# 重み初期化関数
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find('Conv') != -1:
@@ -38,7 +34,6 @@ def weights_init(m):
         nn.init.normal_(m.weight.data, 1.0, 0.02)
         nn.init.constant_(m.bias.data, 0)
 
-# Generator
 class Generator(nn.Module):
     def __init__(self, z_dim=100, ngf=64, nc=1):
         super(Generator, self).__init__()
@@ -57,7 +52,6 @@ class Generator(nn.Module):
         )
     def forward(self, x): return self.main(x)
 
-#Discriminator
 class Discriminator(nn.Module):
     def __init__(self, nc=1, ndf=64):
         super(Discriminator, self).__init__()
@@ -75,13 +69,11 @@ class Discriminator(nn.Module):
         )
     def forward(self, x): return self.main(x).view(-1)
 
-#学習処理
 def train():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"使用デバイス: {device}")
     print(f"画像保存先: {img_save_dir}")
 
-    # ハイパーパラメータ
     batch_size = 128 #バッチサイズ
     z_dim = 100 #潜在変数の次元
     lr = 0.0002 #学習率
@@ -138,7 +130,6 @@ def train():
 
             running_g_loss += errG.item()
 
-        # 平均Loss
         avg_d_loss = running_d_loss / len(dataloader)
         avg_g_loss = running_g_loss / len(dataloader)
         epoch_D_losses.append(avg_d_loss)
@@ -146,20 +137,17 @@ def train():
 
         print(f'[Epoch {epoch+1}/{epochs}] Loss_D: {avg_d_loss:.4f} Loss_G: {avg_g_loss:.4f}')
 
-        # 画像保存
+    
         with torch.no_grad():
             fake = netG(fixed_noise).detach().cpu()
         
-        # epochごとの画像を保存
         save_path = os.path.join(img_save_dir, f'epoch_{epoch+1}.png')
         utils.save_image(fake, save_path, normalize=True)
 
-        # モデルを保存
         torch.save(netG.state_dict(), os.path.join(model_save_dir, "generator_final.pth"))
 
     print("学習完了")
     
-    # Lossグラフ作成・保存
     plt.figure(figsize=(10, 5))
     plt.title("Generator and Discriminator Loss")
     x_axis = range(1, epochs + 1)
