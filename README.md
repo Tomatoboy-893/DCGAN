@@ -1,20 +1,3 @@
-# seminar
-テスト
-やっほー
-伊右衛門
-
-# 12/29にやったこと
-.
-├── README.md
-├── data.py
-├── models/
-│   ├── generator.py
-│   └── discriminator.py
-└── data/
-
-・data.pyにデータパイプラインの部分が入っている。
-・generatorのコードなどはmodelsディレクトリ内のファイルに書いていく感じがいいかな。
-## モデル構造: Generator (生成器)
 
 本プロジェクトの Generator は、**DCGAN (Deep Convolutional GAN)** のアーキテクチャを採用しており、100次元の乱数（ノイズ）を入力として、32x32ピクセルの手書き数字画像を生成している。
 
